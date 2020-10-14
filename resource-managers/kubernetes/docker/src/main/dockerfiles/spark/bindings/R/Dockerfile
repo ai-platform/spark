@@ -30,7 +30,7 @@ RUN apt-get update && apt install -y r-base r-base-dev && rm -rf /var/cache/apt/
 COPY R ${SPARK_HOME}/R
 ENV R_HOME /usr/lib/R
 
-WORKDIR /opt/spark/work-dir
+WORKDIR ${SPARK_HOME}/work-dir
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
 
 # Specify the User that the actual main process will run as
