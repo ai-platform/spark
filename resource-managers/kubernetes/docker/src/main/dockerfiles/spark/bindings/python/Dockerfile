@@ -33,7 +33,7 @@ RUN apt-get update && \
 COPY python/pyspark ${SPARK_HOME}/python/pyspark
 COPY python/lib ${SPARK_HOME}/python/lib
 
-WORKDIR /opt/spark/work-dir
+WORKDIR ${SPARK_HOME}/work-dir
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
 
 # Specify the User that the actual main process will run as
