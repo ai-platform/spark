@@ -32,30 +32,36 @@ RUN set -ex && \
     apt-get update && \
     ln -s /lib /lib64 && \
     apt install -y bash tini libc6 libpam-modules krb5-user libnss3 && \
-    mkdir -p /opt/spark && \
-    mkdir -p /opt/spark/examples && \
-    mkdir -p /opt/spark/work-dir && \
-    touch /opt/spark/RELEASE && \
+    mkdir -p /usr/local/spark && \
+    mkdir -p /usr/local/spark/examples && \
+    mkdir -p /usr/local/spark/work-dir && \
+    touch /usr/local/spark/RELEASE && \
     rm /bin/sh && \
     ln -sv /bin/bash /bin/sh && \
     echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
     chgrp root /etc/passwd && chmod ug+rw /etc/passwd && \
     rm -rf /var/cache/apt/*
 
-COPY jars /opt/spark/jars
-COPY bin /opt/spark/bin
-COPY sbin /opt/spark/sbin
+COPY jars /usr/local/spark/jars
+COPY bin /usr/local/spark/bin
+COPY sbin /usr/local/spark/sbin
 COPY kubernetes/dockerfiles/spark/entrypoint.sh /opt/
-COPY examples /opt/spark/examples
-COPY kubernetes/tests /opt/spark/tests
-COPY data /opt/spark/data
+COPY examples /usr/local/spark/examples
+COPY kubernetes/tests /usr/local/spark/tests
+COPY data /usr/local/spark/data
 
-ENV SPARK_HOME /opt/spark
+ENV SPARK_HOME /usr/local/spark
 
-WORKDIR /opt/spark/work-dir
-RUN chmod g+w /opt/spark/work-dir
+WORKDIR /usr/local/spark/work-dir
+RUN chmod g+w /usr/local/spark/work-dir
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
+
+# Hadoop S3 API jars
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.0/hadoop-aws-3.2.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.563/aws-java-sdk-bundle-1.11.563.jar $SPARK_HOME/jars
+RUN chmod 644 $SPARK_HOME/jars/hadoop-aws-3.2.0.jar
+RUN chmod 644 $SPARK_HOME/jars/aws-java-sdk-bundle-1.11.563.jar
 
 # Specify the User that the actual main process will run as
 USER ${spark_uid}
