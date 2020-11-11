@@ -36,6 +36,12 @@ if [ -z "$uidentry" ] ; then
     fi
 fi
 
+# Wrap IPv6 pod ips in brackets
+SPARK_HOSTNAME="$SPARK_EXECUTOR_POD_IP"
+if [[ $SPARK_HOSTNAME =~ .*:.* ]]; then
+    SPARK_HOSTNAME="[$SPARK_HOSTNAME]"
+fi
+
 SPARK_CLASSPATH="$SPARK_CLASSPATH:${SPARK_HOME}/jars/*"
 env | grep SPARK_JAVA_OPT_ | sort -t_ -k4 -n | sed 's/[^=]*=\(.*\)/\1/g' > /tmp/java_opts.txt
 readarray -t SPARK_EXECUTOR_JAVA_OPTS < /tmp/java_opts.txt
@@ -89,7 +95,7 @@ case "$1" in
       --executor-id $SPARK_EXECUTOR_ID
       --cores $SPARK_EXECUTOR_CORES
       --app-id $SPARK_APPLICATION_ID
-      --hostname $SPARK_EXECUTOR_POD_IP
+      --hostname $SPARK_HOSTNAME
     )
     ;;
 
